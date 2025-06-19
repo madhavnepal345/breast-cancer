@@ -4,6 +4,7 @@ from sklearn.preprocessing import LabelEncoder,StandardScaler
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, accuracy_score,confusion_matrix
 import seaborn as sns
+from sklearn.ensemble import RandomForestClassifier
 
 
 import matplotlib.pyplot as plt
@@ -44,22 +45,26 @@ print(len(X_test))
 
 
 # Training the SVM model
-model = SVC(kernel='linear', random_state=42)
-model.fit(X_train, y_train)
+# model = SVC(kernel='linear', random_state=42)
+# model.fit(X_train, y_train)
 
+#training the model with Random Forest Classifier
+rf=RandomForestClassifier(n_estimators=100,random_state=42)
+rf.fit(X_train,y_train)
 
 # Making predictions on the test set
-y_pred = model.predict(X_test)
+y_pred = rf.predict(X_test)
 
 
 parm_grid={
-    'C': [0.1, 1, 10, 100],
-    'gamma': ['scale', 'auto'],
-    'kernel': ['linear', 'rbf','poly']
+    'n_estimators': [50, 100, 200],
+    'max_depth': [None,5, 10,15],
+    'min_samples_split': [2, 5,10],
+    'min_samples_leaf': [1, 2, 4],
 }
 
 # Performing Grid Search for hyperparameter tuning
-grid_search = GridSearchCV(SVC(random_state=42), parm_grid, cv=10, scoring='accuracy')
+grid_search = GridSearchCV(RandomForestClassifier(random_state=42), parm_grid, cv=10, scoring='accuracy')
 grid_search.fit(X_train, y_train)
 
 
@@ -68,11 +73,11 @@ best_params = grid_search.best_params_
 print("Best Parameters from Grid Search:", best_params)
 
 # Retraining the model with the best parameters
-model = SVC(**best_params, random_state=42)
-model.fit(X_train, y_train)
+# model = SVC(**best_params, random_state=42)
+# model.fit(X_train, y_train)
 
 # Making predictions with the tuned model
-y_pred = model.predict(X_test)  
+y_pred = rf.predict(X_test)  
 
 
 # Evaluate on test set
@@ -102,7 +107,7 @@ plt.tight_layout()
 plt.savefig("confusion_matrix.png")
 
 
-model = SVC(**grid_search.best_params_, random_state=42)
+model = RandomForestClassifier(**grid_search.best_params_, random_state=42)
 
 # Get learning curve data
 train_sizes, train_scores, test_scores = learning_curve(
@@ -124,7 +129,7 @@ plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
                  train_scores_mean + train_scores_std, alpha=0.1, color='blue')
 plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
                  test_scores_mean + test_scores_std, alpha=0.1, color='green')
-plt.title("Learning Curve for SVM with Tuned Hyperparameters")
+plt.title("Learning Curve for Random forest with Tuned Hyperparameters")
 plt.xlabel("Training Set Size")
 plt.ylabel("Accuracy")
 plt.tight_layout()
