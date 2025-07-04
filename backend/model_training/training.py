@@ -5,7 +5,7 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report, accuracy_score,confusion_matrix
 import seaborn as sns
 from sklearn.ensemble import RandomForestClassifier
-
+import joblib
 
 import matplotlib.pyplot as plt
 
@@ -33,7 +33,7 @@ y = df['diagnosis']
 
 
 # Splitting the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
 
 
 # Scaling the features
@@ -57,9 +57,9 @@ y_pred = rf.predict(X_test)
 
 
 parm_grid={
-    'n_estimators': [50, 100, 200],
-    'max_depth': [None,5, 10,15],
-    'min_samples_split': [2, 5,10],
+    'n_estimators': [20, 30, 40],
+    'max_depth': [None,2, 4,8],
+    'min_samples_split': [2, 4,8],
     'min_samples_leaf': [1, 2, 4],
 }
 
@@ -134,3 +134,6 @@ plt.xlabel("Training Set Size")
 plt.ylabel("Accuracy")
 plt.tight_layout()
 plt.savefig("learning_curve.png")
+ 
+joblib.dump(grid_search.best_estimator_, '../model_training/rf_best_model.joblib')
+joblib.dump(scaler, '../model_training/scaler.joblib')
